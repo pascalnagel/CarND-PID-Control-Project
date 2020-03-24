@@ -93,6 +93,20 @@ that's just a guess.
 One last note here: regardless of the IDE used, every submitted project must
 still be compilable with cmake and make./
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+---
 
+## Reflection
+
+### PID Controller
+
+The P component of the controller leads to corrections of the steering angle proportional to the offset. Since this leads to a vanishing steering angle when the car crosses the desired trajectory at an angle, the car is bound to overshoot, leading to a car, which osciallates around the target trajectory. Adding the D component dampens the osciallations by counteracting the P component proportionally to the rate of change of the offset.
+
+If the system has a constant bias, e.g. if the actual steering angle of the car is always 2 degrees more than the value sent to the steering control unit, the PD controller alone cannot converge to a vanishing offset error. This can be resolved by adding the I component, which aggregates all offsets over time, thus driving the system more and more to osciallate around an offset of 0.
+
+### Tuning the Parameters
+
+I started off by using just a P controller. As expected this lead to the car osciallating around the target trajectory with increasing amplitude, soon driving the car off the track. Next, I increased K_d until the osciallations were reduced to a reasonable level. I then noticed that this PD controller with rather large K_p and K_d (both O(10)) lead to a rather low offset, but the drive looked quite uncomfortable, with many short bursts of large steering angle changes. To make the ride smoother, I reduced K_p and K_d together until K_p was almost no longer large enough to take the sharp turns of the track. This lead me to the final values: K_p = 0.1 and K_d = 1.6.
+
+With this setup I noticed that the offset all throughout the track was positive, suggesting a bias. I then searched for a K_i in orders of magnitude upwards from 1E-6 and found K_i = 0.0001 to get rid of the offset sufficiently quickly.
+
+It would have been nice to implement an automatic control parameter optimization (e.g. coordinate ascent), but I saw no easy way to run many consecutive tests in the simulator in an automated fashion.

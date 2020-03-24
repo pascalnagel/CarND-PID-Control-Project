@@ -4,6 +4,7 @@
 #include <string>
 #include "json.hpp"
 #include "PID.h"
+#include <algorithm>
 
 // for convenience
 using nlohmann::json;
@@ -34,6 +35,10 @@ int main() {
   uWS::Hub h;
 
   PID pid;
+  double Kd = 1.6;
+  double Kp = 0.1;
+  double Ki = 0.0001;
+  pid.Init(Kp, Ki, Kd);
   /**
    * TODO: Initialize the pid variable.
    */
@@ -63,6 +68,16 @@ int main() {
            * NOTE: Feel free to play around with the throttle and speed.
            *   Maybe use another PID controller to control the speed!
            */
+          
+          pid.UpdateError(cte);
+          steer_value = pid.TotalError();
+
+          // Clip steering value to range [-1, 1]
+          if (steer_value < -1){
+            steer_value = -1;
+          } else if (steer_value > 1) {
+            steer_value = 1;
+          }
           
           // DEBUG
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value 
